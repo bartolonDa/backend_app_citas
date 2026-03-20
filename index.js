@@ -1,9 +1,22 @@
 const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
+
+const corsOptions = {
+ origin: [
+ 'https://d174d6jam9s064.cloudfront.net', // URL de CloudFront
+ 'http://localhost:5173', // Para desarrollo local
+ 'http://localhost:3000', // CRA en local
+ ],
+ methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+ credentials: true,
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(cors());
