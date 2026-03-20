@@ -1,0 +1,24 @@
+# Dependencias — se reinstalan con npm install
+node_modules/
+ 
+# Variables de entorno — NUNCA subir al repo
+.env
+.env.local
+.env.production
+ 
+# Logs
+logs/
+*.log
+npm-debug.log*
+ 
+# Sistema operativo
+.DS_Store
+Thumbs.db
+ 
+# Editores de código
+.vscode/
+.idea/
+ 
+# Coverage de tests
+coverage/
+
