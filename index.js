@@ -8,7 +8,7 @@ const app = express();
 
 const corsOptions = {
  origin: [
- 'https://d174d6jam9s064.cloudfront.net', // URL de CloudFront
+ 'http://frontendcitas.s3-website.us-east-2.amazonaws.com', // URL de CloudFront
  'http://localhost:5173', // Para desarrollo local
  'http://localhost:3000', // CRA en local
  ],
