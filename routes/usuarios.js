@@ -6,13 +6,21 @@ router.post('/', async (req, res) => {
   try {
     const { nombre, email, uid } = req.body;
 
-    let usuario = await Usuario.findOne({ email });
+    const ADMIN_EMAILS = ['admin@tudominio.com'];
 
-    if (!usuario) {
-      usuario = new Usuario({ nombre, email, uid });
-      await usuario.save();
+    let rol = 'paciente';
+
+    if (ADMIN_EMAILS.includes(email)) {
+      rol = 'admin';
     }
 
+    const esDoctor = await Usuario.findOne({ email, rol: 'doctor' });
+    if (esDoctor) rol = 'doctor';
+
+    usuario = new Usuario({ nombre, email, uid, rol });
+    await usuario.save();
+
+    
     res.status(200).json({ mensaje: "Usuario registrado" });
   } catch (error) {
     res.status(500).json({ error: error.message });
