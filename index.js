@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
@@ -19,7 +18,6 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use(express.json());
-app.use(cors());
 
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("Conectado a MongoDB Atlas"))
