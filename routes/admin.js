@@ -49,8 +49,16 @@ router.delete('/doctores/:id', async (req, res) => {
 });
 
 router.get('/usuarios-cred', async (req, res) => {
-  try { res.json(await UsuarioCred.find().select('-password').sort({ fechaRegistro: -1 })); }
-  catch (e) { res.status(500).json({ error: e.message }); }
+  try { 
+    const usuarios = await UsuarioCred.find()
+      .select('-password')
+      .sort({ fechaRegistro: -1 });
+
+    res.json(usuarios);
+  } catch (e) {
+    console.error("ERROR EN /usuarios-cred:", e);
+    res.status(500).json({ error: e.message });
+  }
 });
 router.post('/usuarios-cred', async (req, res) => {
   try {
