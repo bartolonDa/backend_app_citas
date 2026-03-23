@@ -107,7 +107,7 @@ router.put('/:id', async (req, res) => {
     if (!citaActual) return res.status(404).json({ mensaje: 'Cita no encontrada' });
 
     const emailDoctor = doctorEmail || citaActual.doctorEmail;
-    const doctor = await Doctor.findOne({ email: emailDoctor });
+    const doctor = await UsuarioCred.findOne({ email: emailDoctor, rol: 'doctor' });
     if (!doctor) return res.status(404).json({ mensaje: 'Doctor no encontrado' });
 
     const slots = await generarSlots(doctor, fecha);
@@ -148,7 +148,7 @@ router.patch('/:id/gestion', async (req, res) => {
     if (accion === 'modificar') {
       if (!fecha || !hora) return res.status(400).json({ mensaje: 'fecha y hora requeridas para modificar' });
 
-      const doctor = await Doctor.findOne({ email: cita.doctorEmail });
+      const doctor = await UsuarioCred.findOne({ email: cita.doctorEmail, rol: 'doctor' });
       if (doctor) {
         const slots = await generarSlots(doctor, fecha);
         if (!slots.includes(hora)) {

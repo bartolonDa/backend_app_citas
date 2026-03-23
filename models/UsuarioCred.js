@@ -18,7 +18,7 @@ const UsuarioCredSchema = new mongoose.Schema({
 
   especialidad: { type: String, default: '' },
   
-  horarios: { type: Array, default: [] }
+  horarios: [{diaSemana: Number,horaInicio: String,horaFin: String,intervaloMinutos: Number}],
 
 });
 

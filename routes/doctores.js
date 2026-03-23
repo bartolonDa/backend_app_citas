@@ -43,7 +43,7 @@ async function generarSlots(doctor, fecha) {
 ─────────────────────────────── */
 router.get('/', async (req, res) => {
   try {
-    const docs = await UsuarioCred.find({ rol: 'doctor', activo: true })
+    const docs = await UsuarioCred.find({ rol: 'doctor' })
       .select('nombre email especialidad');
     res.json(docs);
   } catch (e) {
