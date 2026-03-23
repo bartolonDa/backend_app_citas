@@ -23,7 +23,6 @@ mongoose.connect(process.env.MONGO_URI)
   .catch(err => console.error('Error de conexión', err));
 
 app.use('/api/auth',     require('./routes/auth'));
-app.use('/api/usuarios', require('./routes/usuarios'));
 app.use('/api/citas',    require('./routes/citas'));
 app.use('/api/doctores', require('./routes/doctores'));
 app.use('/api/admin',    require('./routes/admin'));

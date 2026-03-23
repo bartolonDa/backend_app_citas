@@ -39,7 +39,7 @@ router.post('/usuarios-cred', async (req, res) => {
   try {
     console.log('BODY /usuarios-cred:', req.body);
 
-    const { nombre, usuario, email, password, rol } = req.body;
+    const { nombre, usuario, email, password, rol, horarios, especialidad } = req.body;
 
     if (!nombre || !usuario || !password) {
       return res.status(400).json({ mensaje: 'nombre, usuario y contraseña requeridos' });
@@ -55,10 +55,22 @@ router.post('/usuarios-cred', async (req, res) => {
       usuario,
       email: email || '',
       password,
-      rol: rol || 'paciente'
+      rol: rol || 'paciente',
+      especialidad: especialidad || '',
+      horarios: Array.isArray(horarios) ? horarios : []
     });
 
     await u.save();
+
+    if (u.rol === 'admin' && u.email) {
+      const adminExistente = await Admin.findOne({ email: u.email });
+      if (!adminExistente) {
+        await Admin.create({
+          nombre: u.nombre,
+          email: u.email
+        });
+      }
+    }
 
     console.log('UsuarioCred creado:', u._id);
 
@@ -74,19 +86,43 @@ router.post('/usuarios-cred', async (req, res) => {
 });
 router.put('/usuarios-cred/:id', async (req, res) => {
   try {
-    const { nombre, usuario, email, password, rol, activo } = req.body;
-    const update = { nombre, usuario, email, rol, activo };
+    const { nombre, usuario, email, password, rol, activo, horarios, especialidad } = req.body;
+
+    const update = {};
+
+    if (nombre !== undefined) update.nombre = nombre;
+    if (usuario !== undefined) update.usuario = usuario;
+    if (email !== undefined) update.email = email;
+    if (rol !== undefined) update.rol = rol;
+    if (activo !== undefined) update.activo = activo;
+    if (especialidad !== undefined) update.especialidad = especialidad;
+    if (horarios !== undefined) update.horarios = horarios;
+
     if (password) {
       const bcrypt = require('bcryptjs');
       update.password = await bcrypt.hash(password, 10);
     }
+
     await UsuarioCred.findByIdAndUpdate(req.params.id, update);
     res.json({ mensaje: 'Usuario actualizado' });
-  } catch (e) { res.status(500).json({ error: e.message }); }
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
+
+
 router.delete('/usuarios-cred/:id', async (req, res) => {
-  try { await UsuarioCred.findByIdAndDelete(req.params.id); res.json({ mensaje: 'Usuario eliminado' }); }
-  catch (e) { res.status(500).json({ error: e.message }); }
+  try {
+    const usuario = await UsuarioCred.findByIdAndDelete(req.params.id);
+
+    if (usuario?.rol === 'admin' && usuario.email) {
+      await Admin.findOneAndDelete({ email: usuario.email });
+    }
+
+    res.json({ mensaje: 'Usuario eliminado' });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 
