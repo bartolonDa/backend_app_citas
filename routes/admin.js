@@ -1,7 +1,6 @@
 const express = require('express');
 const router  = express.Router();
 const Admin       = require('../models/Admin');
-const Doctor      = require('../models/Doctor');
 const UsuarioCred = require('../models/UsuarioCred');
 
 router.get('/admins', async (req, res) => {
@@ -22,31 +21,7 @@ router.delete('/admins/:id', async (req, res) => {
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-router.get('/doctores', async (req, res) => {
-  try { res.json(await Doctor.find().sort({ nombre: 1 })); }
-  catch (e) { res.status(500).json({ error: e.message }); }
-});
-router.post('/doctores', async (req, res) => {
-  try {
-    const { nombre, email, especialidad, horarios } = req.body;
-    if (!nombre || !email || !especialidad)
-      return res.status(400).json({ mensaje: 'nombre, email y especialidad requeridos' });
-    if (await Doctor.findOne({ email }))
-      return res.status(409).json({ mensaje: 'Ya existe un doctor con ese email' });
-    const doctor = await Doctor.create({ nombre, email, especialidad, horarios: horarios || [] });
-    res.status(201).json({ mensaje: 'Doctor creado', doctor });
-  } catch (e) { res.status(500).json({ error: e.message }); }
-});
-router.put('/doctores/:id', async (req, res) => {
-  try {
-    const doctor = await Doctor.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json({ mensaje: 'Doctor actualizado', doctor });
-  } catch (e) { res.status(500).json({ error: e.message }); }
-});
-router.delete('/doctores/:id', async (req, res) => {
-  try { await Doctor.findByIdAndDelete(req.params.id); res.json({ mensaje: 'Doctor eliminado' }); }
-  catch (e) { res.status(500).json({ error: e.message }); }
-});
+
 
 router.get('/usuarios-cred', async (req, res) => {
   try { 

@@ -1,17 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const Doctor = require('../models/Doctor');
+const UsuarioCred = require('../models/UsuarioCred');
 const Cita = require('../models/Cita');
 
-/**
- * Genera slots de tiempo para un doctor en una fecha dada.
- * Devuelve array de "HH:MM" disponibles (sin citas ocupadas).
- */
+/* ───────────────────────────────
+   Generar slots
+─────────────────────────────── */
 async function generarSlots(doctor, fecha) {
   const date = new Date(fecha + 'T00:00:00');
-  const diaSemana = date.getUTCDay(); // 0=Dom … 6=Sáb
+  const diaSemana = date.getUTCDay();
 
-  const horario = doctor.horarios.find(h => h.diaSemana === diaSemana);
+  const horario = doctor.horarios?.find(h => h.diaSemana === diaSemana);
   if (!horario) return [];
 
   const [hIni, mIni] = horario.horaInicio.split(':').map(Number);
@@ -21,6 +20,7 @@ async function generarSlots(doctor, fecha) {
   const slots = [];
   let cur = hIni * 60 + mIni;
   const end = hFin * 60 + mFin;
+
   while (cur < end) {
     const h = String(Math.floor(cur / 60)).padStart(2, '0');
     const m = String(cur % 60).padStart(2, '0');
@@ -28,46 +28,59 @@ async function generarSlots(doctor, fecha) {
     cur += intervalo;
   }
 
-  // Quitar los slots ya ocupados
-  const citasOcupadas = await Cita.find({
+  const citas = await Cita.find({
     doctorEmail: doctor.email,
     fecha,
     estado: { $ne: 'cancelada' }
   }).select('hora');
 
-  const ocupadas = new Set(citasOcupadas.map(c => c.hora));
+  const ocupadas = new Set(citas.map(c => c.hora));
   return slots.filter(s => !ocupadas.has(s));
 }
 
-// GET /api/doctores  → lista pública (solo nombre + especialidad) para pacientes
+/* ───────────────────────────────
+   GET doctores
+─────────────────────────────── */
 router.get('/', async (req, res) => {
   try {
-    const doctores = await Doctor.find({ activo: true }).select('nombre especialidad');
-    res.json(doctores);
-  } catch (e) { res.status(500).json({ error: e.message }); }
+    const docs = await UsuarioCred.find({ rol: 'doctor', activo: true })
+      .select('nombre email especialidad');
+    res.json(docs);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
-// GET /api/doctores/:email/disponibilidad?fecha=YYYY-MM-DD
+/* ───────────────────────────────
+   HORARIO
+─────────────────────────────── */
+router.get('/:email/horario', async (req, res) => {
+  try {
+    const doctor = await UsuarioCred.findOne({ email: req.params.email, rol: 'doctor' });
+    if (!doctor) return res.status(404).json({ mensaje: 'Doctor no encontrado' });
+
+    res.json(doctor);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+/* ───────────────────────────────
+   DISPONIBILIDAD
+─────────────────────────────── */
 router.get('/:email/disponibilidad', async (req, res) => {
   try {
     const { fecha } = req.query;
-    if (!fecha) return res.status(400).json({ mensaje: 'fecha requerida' });
+    const doctor = await UsuarioCred.findOne({ email: req.params.email, rol: 'doctor' });
 
-    const doctor = await Doctor.findOne({ email: req.params.email });
     if (!doctor) return res.status(404).json({ mensaje: 'Doctor no encontrado' });
 
     const slots = await generarSlots(doctor, fecha);
-    res.json({ doctorNombre: doctor.nombre, especialidad: doctor.especialidad, fecha, slotsDisponibles: slots });
-  } catch (e) { res.status(500).json({ error: e.message }); }
-});
+    res.json({ slotsDisponibles: slots });
 
-// GET /api/doctores/:email/horario  → horario completo (para paciente: ver días/horas sin citas)
-router.get('/:email/horario', async (req, res) => {
-  try {
-    const doctor = await Doctor.findOne({ email: req.params.email }).select('nombre especialidad horarios');
-    if (!doctor) return res.status(404).json({ mensaje: 'Doctor no encontrado' });
-    res.json(doctor);
-  } catch (e) { res.status(500).json({ error: e.message }); }
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 module.exports = router;

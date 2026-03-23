@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Cita = require('../models/Cita');
-const Doctor = require('../models/Doctor');
+const UsuarioCred = require('../models/UsuarioCred');
 const { generarSlots } = require('./doctores');
 
 /* ──────────────────────────────────────────────────────────
@@ -32,7 +32,7 @@ router.post('/', async (req, res) => {
     }
 
     // Verificar que el doctor existe
-    const doctor = await Doctor.findOne({ email: doctorEmail });
+    const doctor = await UsuarioCred.findOne({ email: doctorEmail, rol: 'doctor' });
     if (!doctor) return res.status(404).json({ mensaje: 'Doctor no encontrado' });
 
     // Verificar disponibilidad (slot dentro del horario del doctor)
