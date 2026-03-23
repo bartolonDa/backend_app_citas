@@ -53,7 +53,7 @@ router.post('/login-credentials', async (req, res) => {
     return res.json({
       rol:    user.rol,
       nombre: user.nombre,
-      email:  user.email || (user.usuario + '@local'),
+      email:  user.email,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
