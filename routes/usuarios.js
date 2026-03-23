@@ -17,7 +17,7 @@ router.post('/', async (req, res) => {
     const esDoctor = await Usuario.findOne({ email, rol: 'doctor' });
     if (esDoctor) rol = 'doctor';
 
-    usuario = new Usuario({ nombre, email, uid, rol });
+    const usuario = new Usuario({ nombre, email, uid, rol });
     await usuario.save();
 
     
