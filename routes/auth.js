@@ -51,9 +51,11 @@ router.post('/login-credentials', async (req, res) => {
     if (!ok) return res.status(401).json({ mensaje: 'Contraseña incorrecta' });
 
     return res.json({
-      rol:    user.rol,
+      id: user._id,
+      rol: user.rol,
       nombre: user.nombre,
-      email:  user.email,
+      usuario: user.usuario,
+      email: user.email || '',
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
