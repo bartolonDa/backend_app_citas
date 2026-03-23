@@ -62,15 +62,40 @@ router.get('/usuarios-cred', async (req, res) => {
 });
 router.post('/usuarios-cred', async (req, res) => {
   try {
+    console.log('BODY /usuarios-cred:', req.body);
+
     const { nombre, usuario, email, password, rol } = req.body;
-    if (!nombre || !usuario || !password)
+
+    if (!nombre || !usuario || !password) {
       return res.status(400).json({ mensaje: 'nombre, usuario y contraseña requeridos' });
-    if (await UsuarioCred.findOne({ usuario }))
+    }
+
+    const existente = await UsuarioCred.findOne({ usuario });
+    if (existente) {
       return res.status(409).json({ mensaje: 'Ya existe un usuario con ese nombre de usuario' });
-    const u = new UsuarioCred({ nombre, usuario, email: email || '', password, rol: rol || 'paciente' });
+    }
+
+    const u = new UsuarioCred({
+      nombre,
+      usuario,
+      email: email || '',
+      password,
+      rol: rol || 'paciente'
+    });
+
     await u.save();
-    res.status(201).json({ mensaje: 'Usuario creado' });
-  } catch (e) { res.status(500).json({ error: e.message }); }
+
+    console.log('UsuarioCred creado:', u._id);
+
+    return res.status(201).json({ mensaje: 'Usuario creado' });
+  } catch (e) {
+    console.error('ERROR POST /api/admin/usuarios-cred:', e);
+    return res.status(500).json({
+      mensaje: 'Error interno al crear usuario',
+      error: e.message,
+      code: e.code || null
+    });
+  }
 });
 router.put('/usuarios-cred/:id', async (req, res) => {
   try {
@@ -87,6 +112,17 @@ router.put('/usuarios-cred/:id', async (req, res) => {
 router.delete('/usuarios-cred/:id', async (req, res) => {
   try { await UsuarioCred.findByIdAndDelete(req.params.id); res.json({ mensaje: 'Usuario eliminado' }); }
   catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+
+router.get('/debug-usuarios-cred', async (req, res) => {
+  try {
+    const data = await UsuarioCred.find();
+    res.json(data);
+  } catch (e) {
+    console.error('DEBUG UsuarioCred:', e);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 module.exports = router;
