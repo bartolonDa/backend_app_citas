@@ -173,6 +173,24 @@ router.patch('/:id/gestion', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// Confirmar una cita pendiente
+router.put('/:id/confirmar', async (req, res) => {
+  try {
+    const cita = await Cita.findById(req.params.id);
+    if (!cita) return res.status(404).json({ mensaje: 'Cita no encontrada' });
+
+    // Solo se puede confirmar si esta pendiente
+    if (cita.estado !== 'pendiente') {
+      return res.status(400).json({ mensaje: 'Solo se pueden confirmar citas pendientes.' });
+    }
+
+    await Cita.findByIdAndUpdate(req.params.id, { estado: 'confirmada' });
+    res.json({ mensaje: 'Cita confirmada.' });
+
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
 /* ──────────────────────────────────────────────────────────
    PACIENTE: eliminar su cita
    DELETE /api/citas/:id
