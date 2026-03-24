@@ -6,12 +6,7 @@ const Usuario     = require('../models/Usuario');
 const UsuarioCred = require('../models/UsuarioCred');
 const bcrypt      = require('bcryptjs');
 
-/* ──────────────────────────────────────────────────────────
-   ADMINS
-   Los admins se guardan en la colección Admin (para login con Google)
-   Y en UsuarioCred (para login con correo + contraseña).
-   El campo "usuario" en UsuarioCred es el mismo email del admin.
-────────────────────────────────────────────────────────── */
+
 
 // Obtener todos los admins
 router.get('/admins', async (req, res) => {
@@ -47,9 +42,9 @@ router.post('/admins', async (req, res) => {
     if (!yaExisteCred) {
       const cred = new UsuarioCred({
         nombre,
-        usuario: email,   // el correo ES el usuario de login
+        usuario: email, 
         email,
-        password,         // el hook pre-save lo hashea
+        password,   
         rol: 'admin',
         activo: true
       });
@@ -76,12 +71,6 @@ router.delete('/admins/:id', async (req, res) => {
   }
 });
 
-/* ──────────────────────────────────────────────────────────
-   DOCTORES
-   Los doctores también se guardan en UsuarioCred.
-   El correo es su identificador y "usuario" de login.
-────────────────────────────────────────────────────────── */
-
 // Crear doctor: requiere nombre, email, especialidad y password
 router.post('/crear-doctor', async (req, res) => {
   try {
@@ -98,14 +87,13 @@ router.post('/crear-doctor', async (req, res) => {
 
     const doc = new UsuarioCred({
       nombre,
-      usuario: email,   // el correo ES el usuario de login
+      usuario: email,   
       email,
-      password,         // hasheado por el hook pre-save
+      password,        
       rol: 'doctor',
       especialidad,
       activo: true,
       horarios: [
-        // Horario de ejemplo: lunes 08:00-17:00, cada 30 min
         { diaSemana: 1, horaInicio: '08:00', horaFin: '17:00', intervaloMinutos: 30 }
       ]
     });
@@ -127,11 +115,6 @@ router.delete('/doctores/:id', async (req, res) => {
   }
 });
 
-/* ──────────────────────────────────────────────────────────
-   USUARIOS GOOGLE
-   Muestra y gestiona solo usuarios registrados con Google
-   (colección Usuario, sin contraseña).
-────────────────────────────────────────────────────────── */
 
 // Obtener todos los usuarios Google
 router.get('/usuarios-google', async (req, res) => {
@@ -172,10 +155,6 @@ router.delete('/usuarios-google/:id', async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 });
-
-/* ──────────────────────────────────────────────────────────
-   RUTAS LEGACY (mantener compatibilidad con MiHorario)
-────────────────────────────────────────────────────────── */
 
 // Actualizar horario de doctor (usado por MiHorario.jsx)
 router.put('/usuarios-cred/:id', async (req, res) => {

@@ -23,7 +23,7 @@ const UsuarioCredSchema = new mongoose.Schema({
 });
 
 
-// 🔐 ENCRIPTAR PASSWORD (FORMA CORRECTA)
+// ENCRIPTAR PASSWORD (FORMA CORRECTA)
 UsuarioCredSchema.pre('save', async function () {
   if (!this.isModified('password')) return;
 
@@ -31,7 +31,7 @@ UsuarioCredSchema.pre('save', async function () {
 });
 
 
-// 🔑 MÉTODO PARA LOGIN
+// MÉTODO PARA LOGIN
 UsuarioCredSchema.methods.verificarPassword = function (plain) {
   return bcrypt.compare(plain, this.password);
 };

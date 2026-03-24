@@ -38,9 +38,7 @@ async function generarSlots(doctor, fecha) {
   return slots.filter(s => !ocupadas.has(s));
 }
 
-/* ───────────────────────────────
-   GET doctores
-─────────────────────────────── */
+
 router.get('/', async (req, res) => {
   try {
     const docs = await UsuarioCred.find({ rol: 'doctor' })
@@ -51,9 +49,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-/* ───────────────────────────────
-   HORARIO
-─────────────────────────────── */
+
 router.get('/:email/horario', async (req, res) => {
   try {
     const doctor = await UsuarioCred.findOne({ email: req.params.email, rol: 'doctor' });
@@ -65,9 +61,7 @@ router.get('/:email/horario', async (req, res) => {
   }
 });
 
-/* ───────────────────────────────
-   DISPONIBILIDAD
-─────────────────────────────── */
+
 router.get('/:email/disponibilidad', async (req, res) => {
   try {
     const { fecha } = req.query;

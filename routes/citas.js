@@ -4,20 +4,13 @@ const Cita = require('../models/Cita');
 const UsuarioCred = require('../models/UsuarioCred');
 const { generarSlots } = require('./doctores');
 
-/* ──────────────────────────────────────────────────────────
-   HELPERS
-────────────────────────────────────────────────────────── */
-
 function esFechaPasada(fecha, hora) {
   const ahora = new Date();
   const citaDate = new Date(`${fecha}T${hora}:00`);
   return citaDate <= ahora;
 }
 
-/* ──────────────────────────────────────────────────────────
-   PACIENTE: crear cita
-   POST /api/citas
-────────────────────────────────────────────────────────── */
+//Paciente crea cita
 router.post('/', async (req, res) => {
   try {
     const { usuarioEmail, doctorEmail, fecha, hora, especialidad, motivo } = req.body;
@@ -35,7 +28,7 @@ router.post('/', async (req, res) => {
     const doctor = await UsuarioCred.findOne({ email: doctorEmail, rol: 'doctor' });
     if (!doctor) return res.status(404).json({ mensaje: 'Doctor no encontrado' });
 
-    // Verificar disponibilidad (slot dentro del horario del doctor)
+    // Verificar disponibilidad
     const slots = await generarSlots(doctor, fecha);
     if (!slots.includes(hora)) {
       return res.status(409).json({ mensaje: 'El horario seleccionado no está disponible para este doctor' });
@@ -60,10 +53,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-/* ──────────────────────────────────────────────────────────
-   PACIENTE: obtener sus citas
-   GET /api/citas/paciente/:email
-────────────────────────────────────────────────────────── */
+
 router.get('/paciente/:email', async (req, res) => {
   try {
     const citas = await Cita.find({ usuarioEmail: req.params.email }).sort({ creada: -1 });
@@ -71,10 +61,8 @@ router.get('/paciente/:email', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-/* ──────────────────────────────────────────────────────────
-   ADMIN/DOCTOR: todas las citas (con filtro opcional)
-   GET /api/citas/todas?doctorEmail=&fecha=&estado=
-────────────────────────────────────────────────────────── */
+
+// Obtener todas las citas (admin/doctor)
 router.get('/todas', async (req, res) => {
   try {
     const filtro = {};
@@ -87,10 +75,7 @@ router.get('/todas', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-/* ──────────────────────────────────────────────────────────
-   PACIENTE: actualizar su propia cita
-   PUT /api/citas/:id
-────────────────────────────────────────────────────────── */
+
 router.put('/:id', async (req, res) => {
   try {
     const { fecha, hora, especialidad, motivo, doctorEmail } = req.body;
@@ -120,10 +105,7 @@ router.put('/:id', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-/* ──────────────────────────────────────────────────────────
-   ADMIN / DOCTOR: modificar cita con razón
-   PATCH /api/citas/:id/gestion
-────────────────────────────────────────────────────────── */
+// Gestionar una cita (admin/doctor)
 router.patch('/:id/gestion', async (req, res) => {
   try {
     const { accion, razon, modificadoPor, modificadoRol, fecha, hora, especialidad, motivo } = req.body;
@@ -191,10 +173,7 @@ router.put('/:id/confirmar', async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 });
-/* ──────────────────────────────────────────────────────────
-   PACIENTE: eliminar su cita
-   DELETE /api/citas/:id
-────────────────────────────────────────────────────────── */
+
 router.delete('/:id', async (req, res) => {
   try {
     await Cita.findByIdAndDelete(req.params.id);

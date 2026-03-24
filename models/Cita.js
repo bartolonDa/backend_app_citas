@@ -9,9 +9,9 @@ const CitaSchema = new mongoose.Schema({
   motivo: { type: String, required: true },
 
   // Cambios por admin/doctor
-  modificadoPor: { type: String },           // email de quien modificó
-  razonModificacion: { type: String },       // motivo del cambio/cancelación
-  modificadoRol: { type: String },           // 'admin' | 'doctor'
+  modificadoPor: { type: String },          
+  razonModificacion: { type: String },    
+  modificadoRol: { type: String },       
 
   estado: {
     type: String,
