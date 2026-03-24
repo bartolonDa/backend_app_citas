@@ -5,15 +5,10 @@ require('dotenv').config();
 
 const app = express();
 
-const corsOptions = {
-  origin: [
-    'hthttp://frontendcitas.s3-website.us-east-2.amazonaws.com',
-    'http://localhost:5173',
-    'http://localhost:3000',
-  ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  credentials: true,
-};
+app.use(require('cors')({
+  origin: true,
+  credentials: true
+}));
 
 app.use(cors(corsOptions));
 app.use(express.json());
