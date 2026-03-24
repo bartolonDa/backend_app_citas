@@ -22,6 +22,6 @@ app.use('/api/citas',    require('./routes/citas'));
 app.use('/api/doctores', require('./routes/doctores'));
 app.use('/api/admin',    require('./routes/admin'));
 
-app.listen(process.env.PORT, '0.0.0.0', () =>
-  console.log(`Servidor activo en el puerto ${process.env.PORT}`)
-);
+app.listen(process.env.PORT || 5001, '0.0.0.0', () => {
+  console.log('Servidor activo en el puerto', process.env.PORT || 5001);
+});
