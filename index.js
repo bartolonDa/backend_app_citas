@@ -7,7 +7,7 @@ const app = express();
 
 const corsOptions = {
   origin: [
-    'http://frontendcitas.s3-website.us-east-2.amazonaws.com',
+    'hthttp://frontendcitas.s3-website.us-east-2.amazonaws.com',
     'http://localhost:5173',
     'http://localhost:3000',
   ],
